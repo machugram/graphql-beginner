@@ -2,6 +2,24 @@ require('dotenv').config()
 const {ApolloServer ,gql } = require('apollo-server')
 const mongoose = require("mongoose");
 
+
+
+// const mongoose = require("mongoose");
+
+//Database Model
+const toDoSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+});
+
+const ToDo = mongoose.model("ToDo", toDoSchema);
+
 //Connect to database
 mongoose
   .connect(process.env.DATABASE_URL, {
@@ -15,21 +33,21 @@ mongoose
   .catch((error) => {
     throw new Error(error);
   });
-  
+
 const typeDefs = gql
 `type ToDo {
     id: ID!
     title: String!
     description: String!
-  }
+  },
   input ToDoInput {
     title: String!
     description: String!
-  }
+  },
   type Query {
     getToDo(toDoId: ID!): ToDo!
     getToDos: [ToDo!]!
-  }
+  },
   type Mutation {
     createToDo(toDoInput: ToDoInput): ToDo
     updateToDo(toDoId: ID!, toDoInput: ToDoInput): ToDo
@@ -58,11 +76,14 @@ const resolvers = {
   
     Mutation: {
       createToDo: async (parent, args) => {
+
         try {
-          const { toDoInput } = args;
-          return await ToDo.create(toDoInput);
+          //const { toDoInput } = args;
+          return await ToDo.create(args.toDoInput);
         } catch (error) {
+            console.log(error);
           throw new Error(error);
+
         }
       },
       updateToDo: async (parent, args) => {
